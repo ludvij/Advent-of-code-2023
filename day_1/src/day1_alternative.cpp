@@ -41,10 +41,11 @@ uint32_t get_calibration(std::string filename)
 		uint32_t first_integer = -1;
 		uint32_t second_integer = -1;
 
-		for (const char c : line) {
+		for (size_t index = 0; index < line.length(); index++) {
+			const char c = line[index];
 			// add candidates
 			for (const auto& lkup : lookups) {
-				if (c == lkup.str[0]) {
+				if (c == lkup.str[0] && lkup.str.length() <= (line.length() - index)) {
 					candidates.push_back({&lkup, 0});
 				}
 			}

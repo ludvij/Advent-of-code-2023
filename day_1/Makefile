@@ -13,7 +13,7 @@ $(OUT): $(OBJDIR)/$(OBJS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(OBJDIR)
-	$(CC) -c -o $@ $< 
+	$(CC) $(FLAGS) -c -o $@ $< 
 
 
 clean:

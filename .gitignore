@@ -1,5 +1,8 @@
 obj/
 .vscode/
 
+mini.txt
+
 # executables
 day1
+day2
