@@ -10,6 +10,7 @@ int32_t do_cubes(const char* filename, const int32_t red, const int32_t green, c
 	for(std::string line; std::getline(file, line);) {
 
 		if (const auto [whole_line, game, sets] = ctre::match<"Game (\\d+): (.+)">(line); whole_line) {
+			
 			uint32_t game_id = std::stoi(game.str());
 			bool valid = true;
 
