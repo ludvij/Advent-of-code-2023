@@ -6,7 +6,7 @@ OUT := day2
 OBJDIR := obj
 SRCDIR := src
 
-OBJS := day2_part2.o
+OBJS := day2_part1.o
 
 $(OUT): $(OBJDIR)/$(OBJS)
 	$(CC) $(FLAGS) -o $@ $<

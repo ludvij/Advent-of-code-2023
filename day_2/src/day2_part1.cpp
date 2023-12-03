@@ -13,28 +13,20 @@ int32_t do_cubes(const char* filename, const int32_t red, const int32_t green, c
 			uint32_t game_id = std::stoi(game.str());
 			bool valid = true;
 
-			for(const auto set : ctre::split<"; ">(sets)) {
-
-				for (const auto cubes : ctre::split<", ">(set)) {
-
-					if (const auto [whole_cube, sNumber, color] = ctre::match<"(\\d+) (red|green|blue)">(cubes); whole_cube) {
-
-						const int32_t number = std::stoi(sNumber.str());
-						if (color == "green" && number > green) {
-							valid = false;
-							break;
-						}
-						else if (color == "red" && number > red) {
-							valid = false;
-							break;
-						}
-						else if (color == "blue" && number > blue) {
-							valid = false;
-							break;
-						}
-					}
-				}					
-				if (!valid) break;
+			for (auto [whole, amount, color] : ctre::search_all<"(\\d+) (red|green|blue)">(sets)) {
+				int32_t number = std::stoi(amount.str());
+				if (color == "red" && number > red) {
+					valid = false;
+					break;
+				}
+				else if (color == "green" && number > green) {
+					valid = false;
+					break;
+				}
+				else if (color == "blue" && number > blue) {
+					valid = false;
+					break;
+				}
 			}
 			if (valid) {
 				res += game_id;
