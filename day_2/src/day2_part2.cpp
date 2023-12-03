@@ -8,7 +8,6 @@ int32_t do_cubes(const char* filename)
 	std::ifstream file(filename);
 	int32_t res = 0;
 	for(std::string line; std::getline(file, line);) {
-
 		int32_t max_red = 0;
 		int32_t max_green = 0;
 		int32_t max_blue = 0;
