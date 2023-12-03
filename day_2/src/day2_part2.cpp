@@ -9,33 +9,24 @@ int32_t do_cubes(const char* filename)
 	int32_t res = 0;
 	for(std::string line; std::getline(file, line);) {
 
-		if (const auto [whole_line, game, sets] = ctre::match<"Game (\\d+): (.+)">(line); whole_line) {
-			int32_t max_red = 0;
-			int32_t max_green = 0;
-			int32_t max_blue = 0;
-			for(const auto set : ctre::split<"; ">(sets)) {
-
-				for (const auto cubes : ctre::split<", ">(set)) {
-
-					if (const auto [whole_cube, sNumber, color] = ctre::match<"(\\d+) (red|green|blue)">(cubes); whole_cube) {
-						int32_t number = std::stoi(sNumber.str());
-						if (color == "red" && max_red < number) {
-							max_red = number;
-						}
-						else if (color == "green" && max_green < number) {
-							max_green = number;
-						}
-						else if (color == "blue" && max_blue < number) {
-							max_blue = number;
-						}
-	
-					}
-				}					
+		int32_t max_red = 0;
+		int32_t max_green = 0;
+		int32_t max_blue = 0;
+		
+		for (auto [whole, amount, color] : ctre::search_all<"(\\d+) (red|green|blue)">(line)) {
+			int32_t number = std::stoi(amount.str());
+			if (color == "red" && max_red < number) {
+				max_red = number;
 			}
-			int32_t power = max_red * max_green * max_blue;
-	
-			res += power;
+			else if (color == "green" && max_green < number) {
+				max_green = number;
+			}
+			else if (color == "blue" && max_blue < number) {
+				max_blue = number;
+			}
 		}
+
+		res += max_red * max_green * max_blue;
 	}
 
 	return res;
