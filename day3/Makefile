@@ -1,14 +1,16 @@
 CC := g++
 FLAGS := -Wextra -Wall -Wshadow -Wnon-virtual-dtor -std=c++20
 
-OUT := day2
-
 OBJDIR := obj
 SRCDIR := src
 
-OBJS := day2_part1.o
+ALL: day3_part1 day3_part2
 
-$(OUT): $(OBJDIR)/$(OBJS)
+
+day3_part1: $(OBJDIR)/day3_part1.o
+	$(CC) $(FLAGS) -o $@ $<
+
+day3_part2: $(OBJDIR)/day3_part2.o
 	$(CC) $(FLAGS) -o $@ $<
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
@@ -18,4 +20,4 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 clean:
 	rm -r obj
-	rm $(OUT)
+	rm day3_part1
