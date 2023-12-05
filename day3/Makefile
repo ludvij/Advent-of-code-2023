@@ -3,15 +3,20 @@ FLAGS := -Wextra -Wall -Wshadow -Wnon-virtual-dtor -std=c++20
 
 OBJDIR := obj
 SRCDIR := src
+BINDIR := bin
 
 ALL: day3_part1 day3_part2
 
 
+
 day3_part1: $(OBJDIR)/day3_part1.o
-	$(CC) $(FLAGS) -o $@ $<
+	@mkdir -p $(BINDIR)
+	$(CC) $(FLAGS) -o $(BINDIR)/$@ $<
 
 day3_part2: $(OBJDIR)/day3_part2.o
-	$(CC) $(FLAGS) -o $@ $<
+	@mkdir -p $(BINDIR)
+	$(CC) $(FLAGS) -o $(BINDIR)/$@ $<
+
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(OBJDIR)
@@ -19,5 +24,5 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 
 clean:
+	rm -r bin
 	rm -r obj
-	rm day3_part1

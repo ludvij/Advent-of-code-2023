@@ -1,15 +1,17 @@
 CC := g++
-FLAGS := -Wextra -Wall -Wshadow -Wnon-virtual-dtor -pedantic -std=c++20
-
-OUT := day1
+FLAGS := -Wextra -Wall -Wshadow -Wnon-virtual-dtor -std=c++20
 
 OBJDIR := obj
 SRCDIR := src
+BINDIR := bin
 
-OBJS := day1.o
+ALL: day1
 
-$(OUT): $(OBJDIR)/$(OBJS)
-	$(CC) $(FLAGS) -o $@ $<
+
+
+day1: $(OBJDIR)/day1.o
+	@mkdir -p $(BINDIR)
+	$(CC) $(FLAGS) -o $(BINDIR)/$@ $<
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(OBJDIR)
@@ -17,5 +19,5 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 
 clean:
+	rm -r bin
 	rm -r obj
-	rm $(OUT)
