@@ -1,7 +1,8 @@
-obj/
 .vscode/
 
-mini.txt
+Makefile
+*.make
 
 # executables
 bin/
+bin-int/
