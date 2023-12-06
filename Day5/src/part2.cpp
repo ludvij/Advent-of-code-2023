@@ -3,6 +3,7 @@
 #include <string_view>
 #include <fstream>
 #include <vector>
+#include <set>
 #include "ctre.hpp"
 
 
@@ -83,28 +84,25 @@ std::vector<Mapper_set> make_mappers(std::ifstream& file)
 
 uint32_t do_seeds(const char* filename) 
 {
+	struct Val_range {
+		uint64_t begin;
+		uint64_t size;
+	}
 	std::ifstream file(filename);
-	std::vector<uint64_t> seeds;
+	std::vector<Val_range> vals;
 	std::string seeds_string;
 	std::getline(file, seeds_string);
-	for(const auto match : ctre::search_all<"(\\d+)">(seeds_string)) {
-		std::cout << match << '\n';
-		seeds.push_back(std::stoull(match.str()));
+	for(const auto match : ctre::search_all<"(\\d+) (\\d+)">(seeds_string)) {
+		vals.emplace_back(std::stoul(match.get<1>().str()), std::stoul(match.get<2>().str()));
 	}
 
 	const auto mappers = make_mappers(file);
 
 	uint64_t res = UINT32_MAX;
 
-	for(auto& seed : seeds) {
-		uint64_t current = seed;
+	for(auto& val : vals) {
 		for (const auto& mapper : mappers) {
-			const auto next = mapper.Convert(current);
-			std::cout << " " << current << " " << next;
-			current = next;
-		}
-		if (current < res) {
-			res = current;
+		
 		}
 		std::cout << '\n';
 	}
