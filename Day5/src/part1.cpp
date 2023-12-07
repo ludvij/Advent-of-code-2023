@@ -61,9 +61,9 @@ uint64_t do_seeds(const char* filename)
 {
 	std::ifstream file(filename);
 	std::vector<uint64_t> seeds;
-
-	std::getline(file, seeds_string);
-	for(const auto match : ctre::search_all<"(\\d+)">(seeds_string)) {
+	std::string seeds_line;
+	std::getline(file, seeds_line);
+	for(const auto match : ctre::search_all<"(\\d+)">(seeds_line)) {
 		seeds.push_back(std::stoul(match.str()));
 	}
 

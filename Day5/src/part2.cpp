@@ -61,11 +61,10 @@ uint64_t do_seeds(const char* filename)
 
 	std::ifstream file(filename);
 	std::vector<Mapper> seeds;
-	std::string seeds_string;
 
-	std::getline(file, seeds_string);
-
-	for(const auto& match : ctre::search_all<"(\\d+) (\\d+)">(seeds_string)) {
+	std::string seeds_line;
+	std::getline(file, seeds_line);
+	for(const auto& match : ctre::search_all<"(\\d+) (\\d+)">(seeds_line)) {
 		seeds.emplace_back(0, std::stoul(match.get<1>().str()), std::stoul(match.get<2>().str()));
 	}
 
