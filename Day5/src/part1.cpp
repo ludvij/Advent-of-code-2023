@@ -3,6 +3,7 @@
 #include <string_view>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 #include "ctre.hpp"
 
 
@@ -33,47 +34,22 @@ public:
 };
 
 
-class Mapper_set {
-public:
-
-	void AppendMap(const uint64_t source, const uint64_t destination, const uint64_t range)
-	{
-		mappers.emplace_back(source, destination, range);
-	}
-
-	uint64_t Convert(const uint64_t source) const
-	{
-		for(const auto& mapper: mappers) {
-			if (mapper.HasRange(source)) {
-				return mapper.Convert(source);
-			}
-		}
-
-		return source;
-	}
-
-	std::vector<Mapper> mappers;
-};
-
-
-
-
-std::vector<Mapper_set> make_mappers(std::ifstream& file)
+std::vector<std::vector<Mapper>> make_mappers(std::ifstream& file)
 {
-	std::vector<Mapper_set> mappers;
+	std::vector<std::vector<Mapper>> mappers;
 	for(std::string line; std::getline(file, line);) {
 		if (line.empty()) {
 			continue;
 		}
-		else if (const auto [match, from, to] = ctre::match<"(\\w+)-to-(\\w+) map:">(line); match) {
+		else if (ctre::match<"\\w+-to-\\w+ map:">(line)) {
 			mappers.emplace_back();
 			continue;
 		}
 		const auto [match, destination, source, range] = ctre::match<"(\\d+) (\\d+) (\\d+)">(line);
-		mappers.back().AppendMap(
-			std::stoull(source.str()), 
-			std::stoull(destination.str()), 
-			std::stoull(range.str())
+		mappers.back().emplace_back(
+			std::stoul(source.str()), 
+			std::stoul(destination.str()), 
+			std::stoul(range.str())
 		);
 	}
 
@@ -81,37 +57,35 @@ std::vector<Mapper_set> make_mappers(std::ifstream& file)
 }
 
 
-uint32_t do_seeds(const char* filename) 
+uint64_t do_seeds(const char* filename) 
 {
 	std::ifstream file(filename);
 	std::vector<uint64_t> seeds;
-	std::string seeds_string;
+
 	std::getline(file, seeds_string);
 	for(const auto match : ctre::search_all<"(\\d+)">(seeds_string)) {
-		std::cout << match << '\n';
-		seeds.push_back(std::stoull(match.str()));
+		seeds.push_back(std::stoul(match.str()));
 	}
 
 	const auto mappers = make_mappers(file);
 
-	uint64_t res = UINT32_MAX;
-
+	uint64_t res = UINT64_MAX;
 	for(auto& seed : seeds) {
 		uint64_t current = seed;
-		for (const auto& mapper : mappers) {
-			const auto next = mapper.Convert(current);
-			std::cout << " " << current << " " << next;
-			current = next;
+		for (const auto& ms : mappers) {
+			for (const auto& m : ms) {
+				if (m.HasRange(current)) {
+					current = m.Convert(current);
+					break;
+				}
+			}
 		}
-		if (current < res) {
+		if (res > current) {
 			res = current;
 		}
-		std::cout << '\n';
 	}
-
 	return res;
 }
-
 
 
 int main(int argc, char** argv)
@@ -120,6 +94,6 @@ int main(int argc, char** argv)
 		std::cout << "Usage: " << argv[0] << " path/to/file\n";
 		return 0;
 	}
-	const uint32_t res = do_seeds(argv[1]);
+	const uint64_t res = do_seeds(argv[1]);
 	std::cout << "Total: " << res << '\n';
 }

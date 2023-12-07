@@ -3,7 +3,6 @@
 #include <string_view>
 #include <fstream>
 #include <vector>
-#include <set>
 #include "ctre.hpp"
 
 
@@ -17,19 +16,9 @@ public:
 		converter = source - destination;
 	}
 
-	bool HasRange(const uint64_t source) const
-	{
-		return source >= from && source < (from + size);
-	}
-
 	bool rHasRange(const uint64_t destination) const 
 	{
 		return destination >= to && destination < (to + size);
-	}
-
-	uint64_t Convert(const uint64_t source) const
-	{
-		return source - converter;
 	}
 
 	uint64_t rConvert(const uint64_t destination) const 
@@ -37,14 +26,11 @@ public:
 		return destination + converter;
 	}
 
-	int64_t converter;
 	uint64_t from;
 	uint64_t to;
 	uint64_t size;
+	int64_t converter;
 };
-
-
-
 
 
 std::vector<std::vector<Mapper>> make_mappers(std::ifstream& file)
@@ -80,7 +66,7 @@ uint64_t do_seeds(const char* filename)
 	std::getline(file, seeds_string);
 
 	for(const auto& match : ctre::search_all<"(\\d+) (\\d+)">(seeds_string)) {
-		seeds.emplace_back(std::stoul(match.get<1>().str()), 0, std::stoul(match.get<2>().str()));
+		seeds.emplace_back(0, std::stoul(match.get<1>().str()), std::stoul(match.get<2>().str()));
 	}
 
 	const auto mappers = make_mappers(file);
@@ -98,7 +84,7 @@ uint64_t do_seeds(const char* filename)
 		}
 
 		for (const auto& val: seeds) {
-			if (val.HasRange(start)) {
+			if (val.rHasRange(start)) {
 				return res;
 			}
 		}
