@@ -4,17 +4,11 @@
 #include <fstream>
 #include <vector>
 #include "ctre.hpp"
+#include "lud_utils.hpp"
 
 
 class Mapper {
 public:
-	Mapper(const uint64_t source, const uint64_t destination, const uint64_t range)
-		: from(source)
-		, to(destination)
-		, size(range)
-	{
-		converter = source - destination;
-	}
 
 	bool rHasRange(const uint64_t destination) const 
 	{
@@ -23,20 +17,19 @@ public:
 
 	uint64_t rConvert(const uint64_t destination) const 
 	{
-		return destination + converter;
+		return destination + from - to;
 	}
 
 	uint64_t from;
 	uint64_t to;
 	uint64_t size;
-	int64_t converter;
 };
 
 
-std::vector<std::vector<Mapper>> make_mappers(std::ifstream& file)
+std::vector<std::vector<Mapper>> make_mappers(Lud::Slurper& file)
 {
 	std::vector<std::vector<Mapper>> mappers;
-	for(std::string line; std::getline(file, line);) {
+	for(const auto& line : file.ReadLinesAsVector()) {
 		if (line.empty()) {
 			continue;
 		}
@@ -45,11 +38,7 @@ std::vector<std::vector<Mapper>> make_mappers(std::ifstream& file)
 			continue;
 		}
 		const auto [match, destination, source, range] = ctre::match<"(\\d+) (\\d+) (\\d+)">(line);
-		mappers.back().emplace_back(
-			std::stoull(source.str()), 
-			std::stoull(destination.str()), 
-			std::stoull(range.str())
-		);
+		mappers.back().emplace_back(std::stoul(source.str()), std::stoul(destination.str()), std::stoul(range.str()));
 	}
 
 	return mappers;
@@ -58,14 +47,14 @@ std::vector<std::vector<Mapper>> make_mappers(std::ifstream& file)
 
 uint64_t do_seeds(const char* filename) 
 {
-
-	std::ifstream file(filename);
+	Lud::Slurper file(filename);
 	std::vector<Mapper> seeds;
 
-	std::string seeds_line;
-	std::getline(file, seeds_line);
+	std::string seeds_line = *file.ReadLine();
+
 	for(const auto& match : ctre::search_all<"(\\d+) (\\d+)">(seeds_line)) {
-		seeds.emplace_back(0, std::stoul(match.get<1>().str()), std::stoul(match.get<2>().str()));
+		const auto [_, begin, size] = match;
+		seeds.emplace_back(0, std::stoul(begin.str()), std::stoul(size.str()));
 	}
 
 	const auto mappers = make_mappers(file);

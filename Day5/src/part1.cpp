@@ -9,13 +9,6 @@
 
 class Mapper {
 public:
-	Mapper(const uint64_t source, const uint64_t destination, const uint64_t range)
-		: from(source)
-		, to(destination)
-		, size(range)
-	{
-		converter = source - destination;
-	}
 
 	bool HasRange(const uint64_t source) const
 	{
@@ -24,10 +17,9 @@ public:
 
 	uint64_t Convert(const uint64_t source) const
 	{
-		return source - converter;
+		return source - from + to;
 	}
 
-	int64_t converter;
 	uint64_t from;
 	uint64_t to;
 	uint64_t size;
