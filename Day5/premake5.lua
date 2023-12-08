@@ -18,8 +18,12 @@ workspace "AoC_2023_Day5"
 	}
 
 	configurations {
-		"debug", 
-		"release"
+		"release",
+		"debug"
+	}
+
+	files {
+		"../utils/**.cpp"
 	}
 
 	defines {

@@ -1,11 +1,13 @@
 #ifndef LUD_UTILS_HEADER
 #define LUD_UTILS_HEADER
 
-#include <string>
 #include <string_view>
+#include <string>
 #include <optional>
-#include <iostream>
+
 #include <fstream>
+
+#include <charconv>
 #include <vector>
 #include <bit>
 
@@ -22,15 +24,13 @@ public:
 	Slurper(const Slurper& slurper) = delete;
 	Slurper(Slurper&& slurper) noexcept = default;
 
-	Slurper& operator=(const Slurper& other) = delete;
-	Slurper& operator=(Slurper&& other);
 
 	~Slurper();
 
 
-	std::vector<std::string> ReadLinesAsVector();
+	std::vector<std::string> ReadLines();
 
-	std::optional<std::string> ReadLine();
+	std::string ReadLine();
 	std::optional<std::string> Read(size_t chars);
 
 	template<class T> std::optional<T> ReadStructure();
@@ -57,11 +57,22 @@ private:
 	std::ifstream file;
 };
 
-}
+template<typename NumberType> NumberType parse_num(std::string_view sv);
+
+#ifdef  CTRE_V2__CTRE__HPP
+template<class T>
+concept RegexResult = requires(T rr)
+{
+	{ rr.view() } -> std::same_as<std::string_view>;
+	{ rr.str()  } -> std::same_as<std::string>;
+};
+template<RegexResult regex_results, typename NumberType> NumberType parse_num(regex_results reg);
+#endif//CTRE_V2__CTRE__HPP
+
+
 
 #ifdef LUD_SLURPER_IMPLEMENTATION
 
-namespace Lud {
 
 Slurper::Slurper()
 {
@@ -88,13 +99,6 @@ Slurper::~Slurper()
 {
 	Close();
 }
-
-Slurper& Slurper::operator=(Slurper&& other)
-{
-	*this = std::move(other);
-	return *this;
-}
-
 
 bool Lud::Slurper::Open(const std::string_view& filename, std::ios_base::openmode mode = std::ios_base::in) 
 {
@@ -169,16 +173,15 @@ template<class T> void Slurper::ReadToStructure(T& t)
 	file.read(std::bit_cast<char*>(&t), sizeof(t));
 }
 
-std::optional<std::string> Slurper::ReadLine()
+std::string Slurper::ReadLine()
 {
 	std::string line;
-	if (std::getline(file, line)) {
-		return line;
-	}
-	return std::nullopt;
+	std::getline(file, line);
+
+	return line;
 }
 
-std::vector<std::string> Slurper::ReadLinesAsVector()
+std::vector<std::string> Slurper::ReadLines()
 {
 	std::vector<std::string> lines;
 
@@ -216,8 +219,26 @@ bool Slurper::HasSpace(size_t size)
 }
 
 
-}
+
+
+
 #endif//LUD_SLURPER_IMPLEMENATION
 
+template<typename NumberType> NumberType parse_num(std::string_view sv)
+{
+	NumberType number = 0;
+	std::from_chars(sv.data(), sv.data() + sv.size(), number);
+	return number;
+}
+
+#ifdef  CTRE_V2__CTRE__HPP
+
+template<RegexResult regex_results, typename NumberType> NumberType parse_num(regex_results reg)
+{
+	return parse_num<NumberType>(reg.view());
+}
+#endif//CTRE_V2__CTRE__HPP
+
+}
 
 #endif//LUD_UTILS_HEADER

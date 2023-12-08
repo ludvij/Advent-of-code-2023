@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include "ctre.hpp"
+#include "lud_utils.hpp"
 
 
 class Mapper {
@@ -26,10 +27,10 @@ public:
 };
 
 
-std::vector<std::vector<Mapper>> make_mappers(std::ifstream& file)
+std::vector<std::vector<Mapper>> make_mappers(Lud::Slurper& file)
 {
 	std::vector<std::vector<Mapper>> mappers;
-	for(std::string line; std::getline(file, line);) {
+	for(const auto& line : file.ReadLines()) {
 		if (line.empty()) {
 			continue;
 		}
@@ -39,9 +40,9 @@ std::vector<std::vector<Mapper>> make_mappers(std::ifstream& file)
 		}
 		const auto [match, destination, source, range] = ctre::match<"(\\d+) (\\d+) (\\d+)">(line);
 		mappers.back().emplace_back(
-			std::stoul(source.str()), 
-			std::stoul(destination.str()), 
-			std::stoul(range.str())
+			Lud::parse_num<uint64_t>(source), 
+			Lud::parse_num<uint64_t>(destination), 
+			Lud::parse_num<uint64_t>(range)
 		);
 	}
 
@@ -51,12 +52,11 @@ std::vector<std::vector<Mapper>> make_mappers(std::ifstream& file)
 
 uint64_t do_seeds(const char* filename) 
 {
-	std::ifstream file(filename);
+	Lud::Slurper file(filename);
 	std::vector<uint64_t> seeds;
-	std::string seeds_line;
-	std::getline(file, seeds_line);
+	std::string seeds_line = file.ReadLine();
 	for(const auto match : ctre::search_all<"(\\d+)">(seeds_line)) {
-		seeds.push_back(std::stoul(match.str()));
+		seeds.push_back(Lud::parse_num<uint64_t>(match));
 	}
 
 	const auto mappers = make_mappers(file);
