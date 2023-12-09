@@ -18,13 +18,18 @@ workspace "AoC_2023_Day6"
 	}
 
 	configurations {
-		"debug", 
-		"release"
+		"release",
+		"debug"
 	}
 
 	includedirs {
 		"src",
-		"../vendor/include"
+		"../vendor/include",
+		"../utils"
+	}
+
+	defines {
+		"LUD_SLURPER_IMPLEMENTATION"
 	}
 
 	filter "configurations:debug"
