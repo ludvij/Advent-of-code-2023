@@ -4,15 +4,15 @@
 #include "ctre.hpp"
 
 
-uint64_t do_races(const char* filename)
+int64_t do_races(const char* filename)
 {
 	Lud::Slurper file(filename);
 	std::string times = "";
 	std::string distances = "";
-	for (const auto match : ctre::search_all<"(\\d+)">(file.ReadLine().substr(11))) {
+	for (const auto match : ctre::search_all<"(\\d+)">(file.ReadLine())) {
 		times.append(match);
 	}
-	for (const auto match : ctre::search_all<"(\\d+)">(file.ReadLine().substr(11))) {
+	for (const auto match : ctre::search_all<"(\\d+)">(file.ReadLine())) {
 		distances.append(match);
 	}
 
@@ -25,7 +25,7 @@ uint64_t do_races(const char* filename)
 
 	// enforce inequality
 	if (end == (t - begin)) end--;
-	
+
 	return end - begin;
 }
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	const uint64_t res = do_races(argv[1]);
+	const int64_t res = do_races(argv[1]);
 
 	std::cout << "Total: " << res << '\n';
 

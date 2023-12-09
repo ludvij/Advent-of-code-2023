@@ -4,16 +4,16 @@
 #include "ctre.hpp"
 
 
-uint64_t do_races(const char* filename)
+int64_t do_races(const char* filename)
 {
 	uint64_t res = 1;
 	Lud::Slurper file(filename);
 	std::vector<int64_t> times;
 	std::vector<int64_t> distances;
-	for (const auto match : ctre::search_all<"(\\d+)">(file.ReadLine().substr(11))) {
+	for (const auto match : ctre::search_all<"(\\d+)">(file.ReadLine())) {
 		times.push_back(Lud::parse_num<int64_t>(match));
 	}
-	for (const auto match : ctre::search_all<"(\\d+)">(file.ReadLine().substr(11))) {
+	for (const auto match : ctre::search_all<"(\\d+)">(file.ReadLine())) {
 		distances.push_back(Lud::parse_num<int64_t>(match));
 	}
 
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	const uint64_t res = do_races(argv[1]);
+	const int64_t res = do_races(argv[1]);
 
 	std::cout << "Total: " << res << '\n';
 
