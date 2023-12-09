@@ -23,8 +23,6 @@ int64_t do_races(const char* filename)
 	const int64_t begin = std::floor((static_cast<double>(t) - inner) * 0.5f + 1);
 	const int64_t end   = std::ceil( (static_cast<double>(t) + inner) * 0.5f);
 
-	// enforce inequality
-
 	return end - begin;
 }
 
