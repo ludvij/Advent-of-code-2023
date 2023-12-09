@@ -19,7 +19,7 @@ int64_t do_races(const char* filename)
 	const int64_t t = Lud::parse_num<int64_t>(times);
 	const int64_t d = Lud::parse_num<int64_t>(distances);
 
-	const double inner  = static_cast<double>(sqrt(t*t - 4 * d));
+	const double  inner = std::sqrt(t*t - 4 * d);
 	const int64_t begin = std::floor((static_cast<double>(t) - inner) * 0.5f + 1);
 	const int64_t end   = std::ceil( (static_cast<double>(t) + inner) * 0.5f);
 

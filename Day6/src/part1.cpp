@@ -21,7 +21,7 @@ int64_t do_races(const char* filename)
 		const int64_t t = times[race];
 		const int64_t d = distances[race];
 
-		const double inner  = static_cast<double>(sqrt(t*t - 4 * d));
+		const double  inner = std::sqrt(t*t - 4 * d);
 		const int64_t begin = std::floor((static_cast<double>(t) - inner) * 0.5f + 1);
 		const int64_t end   = std::ceil( (static_cast<double>(t) + inner) * 0.5f);
 
