@@ -18,15 +18,13 @@ int64_t do_races(const char* filename)
 	}
 
 	for(size_t race = 0; race < times.size(); race++) {
-		int64_t t = times[race];
-		int64_t d = distances[race];
+		const int64_t t = times[race];
+		const int64_t d = distances[race];
 
-		int64_t inner = t*t - 4 * d;
-		int64_t begin = (static_cast<double>(t) - sqrt(static_cast<double>(inner))) * 0.5f;
-		int64_t end   = (static_cast<double>(t) + sqrt(static_cast<double>(inner))) * 0.5f;
+		const double inner  = static_cast<double>(sqrt(t*t - 4 * d));
+		const int64_t begin = std::floor((static_cast<double>(t) - inner) * 0.5f + 1);
+		const int64_t end   = std::ceil( (static_cast<double>(t) + inner) * 0.5f);
 
-		// enforce inequality
-		if (end == (t - begin)) end--;
 
 		res *= end - begin;
 	}	

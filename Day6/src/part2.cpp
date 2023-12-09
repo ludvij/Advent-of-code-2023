@@ -16,15 +16,14 @@ int64_t do_races(const char* filename)
 		distances.append(match);
 	}
 
-	int64_t t = Lud::parse_num<int64_t>(times);
-	int64_t d = Lud::parse_num<int64_t>(distances);
+	const int64_t t = Lud::parse_num<int64_t>(times);
+	const int64_t d = Lud::parse_num<int64_t>(distances);
 
-	int64_t inner = t*t - 4 * d;
-	int64_t begin = (static_cast<double>(t) - sqrt(static_cast<double>(inner))) * 0.5f;
-	int64_t end   = (static_cast<double>(t) + sqrt(static_cast<double>(inner))) * 0.5f;
+	const double inner  = static_cast<double>(sqrt(t*t - 4 * d));
+	const int64_t begin = std::floor((static_cast<double>(t) - inner) * 0.5f + 1);
+	const int64_t end   = std::ceil( (static_cast<double>(t) + inner) * 0.5f);
 
 	// enforce inequality
-	if (end == (t - begin)) end--;
 
 	return end - begin;
 }
