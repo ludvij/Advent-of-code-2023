@@ -1,4 +1,4 @@
-workspace "AoC_2023_Day7"
+workspace "AoC_2023_Day8"
 	architecture "x86_64"
 	language "C++"
 	cppdialect "c++20"
