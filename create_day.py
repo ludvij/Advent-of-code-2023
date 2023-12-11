@@ -107,6 +107,9 @@ def main():
 		print('running premake build')
 		os.chdir(f'./Day{day}')
 		subprocess.call(['premake5', 'gmake2'])
+		if os.name == 'posix':
+			subprocess.call(['bear', '--', 'make'])
+			subprocess.call(['make', 'clean'])
 
 
 
