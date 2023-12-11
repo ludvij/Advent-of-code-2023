@@ -1,0 +1,50 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-DLUD_SLURPER_IMPLEMENTATION",
+      "-Isrc",
+      "-I../vendor/include",
+      "-I../utils",
+      "-m64",
+      "-O2",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wshadow",
+      "-pedantic",
+      "-Wnon-virtual-dtor",
+      "-c",
+      "-o",
+      "bin-int/release/Part1/part1.o",
+      "src/part1.cpp"
+    ],
+    "directory": "/home/lud/advent_of_code/2023/Day10",
+    "file": "/home/lud/advent_of_code/2023/Day10/src/part1.cpp",
+    "output": "/home/lud/advent_of_code/2023/Day10/bin-int/release/Part1/part1.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-DLUD_SLURPER_IMPLEMENTATION",
+      "-Isrc",
+      "-I../vendor/include",
+      "-I../utils",
+      "-m64",
+      "-O2",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wshadow",
+      "-pedantic",
+      "-Wnon-virtual-dtor",
+      "-c",
+      "-o",
+      "bin-int/release/Part2/part2.o",
+      "src/part2.cpp"
+    ],
+    "directory": "/home/lud/advent_of_code/2023/Day10",
+    "file": "/home/lud/advent_of_code/2023/Day10/src/part2.cpp",
+    "output": "/home/lud/advent_of_code/2023/Day10/bin-int/release/Part2/part2.o"
+  }
+]
