@@ -2,6 +2,9 @@
 
 Makefile
 *.make
+.cache
+
+compile_commands.json
 
 # executables
 bin/
