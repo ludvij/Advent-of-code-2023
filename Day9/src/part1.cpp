@@ -40,9 +40,7 @@ int do_mirage(const char* filename)
 	for(const auto& val: vals) {
 		auto diffs = get_diffs(val);
 		diffs.back().push_back(0);
-		for(const auto& v: val) {
-			std::cout << v << ' ';
-		}
+
 		std::cout << '\n';
 		for(size_t i = 1; i < diffs.size(); i++) {
 			const size_t index = diffs.size() - 1 - i;
@@ -50,7 +48,6 @@ int do_mirage(const char* filename)
 			auto& curr = diffs[index];
 			curr.push_back(curr.back() + last.back());
 		}
-		std::cout << diffs[0].back() << '\n';
 		res += diffs[0].back();
 	}
 	return res;
