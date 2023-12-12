@@ -65,7 +65,7 @@ project "Part2"
 cpp_src = """// Aoc 2023 Day {day} Part {part}
 // author: Lud
 #include <iostream>
-#include "lud_utils.hpp"
+#include <lud_utils.hpp>
 
 s64 do_operation(const char* filename)
 {{

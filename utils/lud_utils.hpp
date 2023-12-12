@@ -1,17 +1,11 @@
 #ifndef LUD_UTILS_HEADER
 #define LUD_UTILS_HEADER
 
-#include "slurper.hpp"
-#include "parser.hpp"
+#include "lud_slurper.hpp"
+#include "lud_parser.hpp"
+#include "lud_assert.hpp"
+#include "lud_core.hpp"
 
-// some typedefs
-using u8 = uint8_t;
-using s8 =  int8_t;
-using u16 = uint16_t;
-using s16 =  int16_t;
-using u32 = uint32_t;
-using s32 =  int32_t;
-using u64 = uint64_t;
-using s64 =  int64_t;
+
 
 #endif//LUD_UTILS_HEADER
