@@ -1,7 +1,7 @@
 // Aoc 2023 Day 11 Part 2
 // author: Lud
 #include <iostream>
-#include "lud_utils.hpp"
+#include <lud_utils.hpp>
 
 s64 do_operation(const char* filename)
 {

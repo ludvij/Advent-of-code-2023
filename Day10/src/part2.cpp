@@ -6,7 +6,6 @@
 #include <lud_utils.hpp>
 #include <optional>
 #include <vector>
-#include <algorithm>
 #include <unordered_set>
 
 struct Point {
@@ -31,21 +30,6 @@ template <> struct std::hash<Point> {
 	}
 };
 
-
-Point get_begin(const std::vector<std::string>& lines)
-{
-	for(size_t y = 0; y <lines.size(); y++) {
-		for(size_t x = 0; x < lines[y].size(); x++) {
-			if (lines[y][x] == 'S') {
-				return Point(x, y);
-			}
-		}
-	}
-	return {0, 0};
-}
-
-
-
 Point get_next(const std::vector<std::string>& lines, const Point& curr, const Point& prev)
 {
 	const auto [x, y] = curr;
@@ -64,57 +48,37 @@ Point get_next(const std::vector<std::string>& lines, const Point& curr, const P
 }
 
 
-std::array<Point, 2> interpret_s(const std::vector<std::string>& lines, const Point& begin)
+std::array<Point, 2> interpret_s(std::vector<std::string>& lines, const Point& begin)
 {
 	const auto [x, y] = begin;
 	std::optional<Point> p1;
 	std::optional<Point> p2;
-	if (y != 0 && (lines[y - 1][x] == '|' || lines[y - 1][x] == '7' || lines[y - 1][x] == 'F')) {
+	int access = 0;
+	if (y > 0 && (lines[y - 1][x] == '|' || lines[y - 1][x] == '7' || lines[y - 1][x] == 'F')) {
 		p1 = {x, y-1};
+		access |= 0b0001;
 	}
-	if (x != 0 && (lines[y][x - 1] == '-' || lines[y][x - 1] == 'L' || lines[y][x - 1] == 'F')) {
+	if (x > 0 && (lines[y][x - 1] == '-' || lines[y][x - 1] == 'L' || lines[y][x - 1] == 'F')) {
 		if      (!p1) p1 = {x - 1, y};
 		else if (!p2) p2 = {x - 1, y};
+		access |= 0b0010;
 	}
 	if (x < lines[y].size() && (lines[y][x + 1] == '-' || lines[y][x + 1] == 'J' || lines[y][x + 1] == '7')) {
 		if      (!p1) p1 = {x + 1, y};
 		else if (!p2) p2 = {x + 1, y};
+		access |= 0b0100;
 	}
 	if (y < lines.size() && (lines[y + 1][x] == '|' || lines[y + 1][x] == 'J' || lines[y + 1][x] == 'L')) {
 		p2 = {x, y + 1};
+		access |= 0b1000;
 	}
-
+	if      (access == 0b0011) lines[y] = lines[y].replace(x, 1, "J");
+	else if (access == 0b0101) lines[y] = lines[y].replace(x, 1, "L");
+	else if (access == 0b1001) lines[y] = lines[y].replace(x, 1, "|");
+	else if (access == 0b0110) lines[y] = lines[y].replace(x, 1, "-");
+	else if (access == 0b1010) lines[y] = lines[y].replace(x, 1, "7");
+	else if (access == 0b1100) lines[y] = lines[y].replace(x, 1, "F");
 	return {*p1, *p2};
-}
-
-void print_cycle(const std::unordered_set<Point>& cycle, const std::unordered_set<Point>& inside, const std::vector<std::string>& ref)
-{
-	std::stringstream ss;
-	for(size_t i = 0; i < ref.size(); i++) {
-		for(size_t j = 0; j < ref[i].size(); j++) {
-			Point test = {j, i};
-			if (!cycle.contains(test)) {
-				if (inside.contains(test)) {
-					ss << "█";
-				}
-				else {
-					ss << ' ';
-				}
-				continue;
-			}
-			ss << "\x1b[38;5;2m";
-			switch (ref[i][j]) {
-				case 'F': ss << "┌"; break;
-				case '7': ss << "┐"; break;
-				case 'L': ss << "└"; break;
-				case 'J': ss << "┘"; break;
-				default : ss << ref[i][j];
-			}
-			ss << "\x1b[0m";
-		}
-		ss << '\n';
-	}
-	std::cout << ss.str();
 }
 
 bool check_inside(const Point& p, const std::unordered_set<Point>& cycle, const std::vector<std::string>& ref)
@@ -132,7 +96,7 @@ bool check_inside(const Point& p, const std::unordered_set<Point>& cycle, const 
 			intersections++;
 		}
 	}
-	return intersections % 2 == 1 && intersections != 0;
+	return intersections % 2 == 1;
 }
 
 
@@ -140,7 +104,13 @@ s64 do_operation(const char* filename)
 {
 	Lud::Slurper file(filename);
 	auto lines = file.ReadLines();
-	Point begin = get_begin(lines);
+	Point begin;
+	for(size_t y = 0; y <lines.size(); y++) {
+		if(size_t pos = lines[y].find('S'); pos != std::string::npos) {
+			begin = {pos, y};
+			break;
+		}
+	}
 
 	auto interpreted = interpret_s(lines, begin);
 	std::array<Point, 2> paths = {begin, interpreted[0]};
@@ -158,16 +128,15 @@ s64 do_operation(const char* filename)
 	for(size_t y = 0; y < lines.size(); y++){
 		for (size_t x = 0; x < lines[y].size(); x++) {
 			Point p = {x, y};
-			if (std::find(cycle.begin(), cycle.end(), p) == cycle.end()) {
-				if(check_inside(p, cycle, lines)) {
-					inside.insert(p);
-					res++;
-				}
+			if (cycle.contains(p)) {
+				continue;
+			}
+			if(check_inside(p, cycle, lines)) {
+				inside.insert(p);
+				res++;
 			}
 		}
 	}
-
-	print_cycle(cycle, inside, lines);
 
 	return res;
 }
@@ -181,8 +150,8 @@ int main(int argc, char** argv)
 	}
 	const auto res = do_operation(argv[1]);
 
-	assert_no_print(eq,do_operation("test21.txt"), 8);
-	assert_no_print(eq,do_operation("test22.txt"), 10);
+	Lud::assert_eq(do_operation("test21.txt"), 8);
+	Lud::assert_eq(do_operation("test22.txt"), 10);
 
 	std::cout << "Total " << res << '\n';
 	return 0;

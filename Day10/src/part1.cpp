@@ -78,7 +78,13 @@ s64 do_operation(const char* filename)
 {
 	Lud::Slurper file(filename);
 	auto lines = file.ReadLines();
-	Point begin = get_begin(lines);
+	Point begin;
+	for(size_t y = 0; y <lines.size(); y++) {
+		if(size_t pos = lines[y].find('S'); pos != std::string::npos) {
+			begin = {pos, y};
+			break;
+		}
+	}
 	// 0 1 left
 	// 2 3 right
 	auto interpreted = interpret_s(lines, begin);
