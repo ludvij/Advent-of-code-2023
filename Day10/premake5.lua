@@ -55,3 +55,10 @@ project "Part2"
 	files { 
 		"src/part2.cpp"
 	}
+
+project "Part2_shoelace"
+	kind "ConsoleApp"
+
+	files { 
+		"src/part2_shoelace.cpp"
+	}

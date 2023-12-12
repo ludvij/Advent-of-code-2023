@@ -9,14 +9,16 @@
 namespace Lud {
 
 // hacky workaround when there are a lot of prints
-#define assert_no_print(assert_type, fn, val) \
-	{\
-		std::streambuf *old_cout = std::cout.rdbuf(); \
-		std::stringstream ss; \
-		std::cout.rdbuf(ss.rdbuf()); \
-		Lud::assert_##assert_type(fn, val); \
-		std::cout.rdbuf(old_cout); \
-	}
+#define NO_PRINT(code) \
+{\
+	std::streambuf *old_cout = std::cout.rdbuf(); \
+	std::stringstream ss; \
+	std::cout.rdbuf(ss.rdbuf()); \
+	code \
+	std::cout.rdbuf(old_cout); \
+}
+
+#define assert_no_print(assert_type, fn, val) NO_PRINT(Lud::assert_##assert_type(fn, val))
 
 template<class T1, class T2> void assert_eq(T1 n1, T2 n2, const std::source_location loc = std::source_location::current());
 template<class T1, class T2> void assert_ne(T1 n1, T2 n2, const std::source_location loc = std::source_location::current());

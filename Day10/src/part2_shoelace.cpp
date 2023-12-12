@@ -1,12 +1,12 @@
-// Aoc 2023 Day 10 Part 2
+// Aoc 2023 Day 10 Part 2 alternative solution
 // author: Lud
+#include "lud_assert.hpp"
 #include <iostream>
 #include <ostream>
 #include <array>
 #include <lud_utils.hpp>
 #include <optional>
 #include <vector>
-#include <unordered_set>
 
 struct Point {
 	size_t x;
@@ -18,16 +18,6 @@ struct Point {
 		return x == other.x && y == other.y;
 	}
 
-};
-
-
-template <> struct std::hash<Point> {
-	size_t operator()(const Point& s) const noexcept {
-		const size_t x = std::hash<size_t>{}(s.x);
-		const size_t y = std::hash<size_t>{}(s.y);
-
-		return (x * 73856093) ^ y;
-	}
 };
 
 Point get_next(const std::vector<std::string>& lines, const Point& curr, const Point& prev)
@@ -48,28 +38,25 @@ Point get_next(const std::vector<std::string>& lines, const Point& curr, const P
 }
 
 
-std::array<Point, 2> interpret_s(std::vector<std::string>& lines, const Point& begin)
+Point interpret_s(std::vector<std::string>& lines, const Point& begin)
 {
 	const auto [x, y] = begin;
-	std::optional<Point> p1;
-	std::optional<Point> p2;
+	std::optional<Point> p;
 	int access = 0;
 	if (y > 0 && (lines[y - 1][x] == '|' || lines[y - 1][x] == '7' || lines[y - 1][x] == 'F')) {
-		p1 = {x, y-1};
+		p = {x, y-1};
 		access |= 0b0001;
 	}
 	if (x > 0 && (lines[y][x - 1] == '-' || lines[y][x - 1] == 'L' || lines[y][x - 1] == 'F')) {
-		if      (!p1) p1 = {x - 1, y};
-		else if (!p2) p2 = {x - 1, y};
+		if (!p) p = {x - 1, y};
 		access |= 0b0010;
 	}
 	if (x < lines[y].size() && (lines[y][x + 1] == '-' || lines[y][x + 1] == 'J' || lines[y][x + 1] == '7')) {
-		if      (!p1) p1 = {x + 1, y};
-		else if (!p2) p2 = {x + 1, y};
+		if (!p) p = {x + 1, y};
 		access |= 0b0100;
 	}
 	if (y < lines.size() && (lines[y + 1][x] == '|' || lines[y + 1][x] == 'J' || lines[y + 1][x] == 'L')) {
-		p2 = {x, y + 1};
+		if (!p) p = {x, y + 1};
 		access |= 0b1000;
 	}
 	if      (access == 0b0011) lines[y] = lines[y].replace(x, 1, "J");
@@ -78,27 +65,8 @@ std::array<Point, 2> interpret_s(std::vector<std::string>& lines, const Point& b
 	else if (access == 0b0110) lines[y] = lines[y].replace(x, 1, "-");
 	else if (access == 0b1010) lines[y] = lines[y].replace(x, 1, "7");
 	else if (access == 0b1100) lines[y] = lines[y].replace(x, 1, "F");
-	return {*p1, *p2};
+	return *p;
 }
-
-bool check_inside(const Point& p, const std::unordered_set<Point>& cycle, const std::vector<std::string>& ref)
-{
-	int intersections = 0;
-	for(size_t x = p.x; x < ref[p.y].size(); x++) {
-		Point test = {x, p.y};
-		if (!cycle.contains(test)) {
-			continue;
-		}
-		const char c = ref[p.y][x];
-		// we interpret the position as it was in a botom corner
-		// so it can intersect with J or L since they go from mid to up
-		if (c != '-' && c != 'J' && c != 'L') {
-			intersections++;
-		}
-	}
-	return intersections % 2 == 1;
-}
-
 
 s64 do_operation(const char* filename)
 {
@@ -112,33 +80,35 @@ s64 do_operation(const char* filename)
 		}
 	}
 
-	auto interpreted = interpret_s(lines, begin);
-	std::array<Point, 2> paths = {begin, interpreted[0]};
-	std::unordered_set<Point> cycle{begin};
-	s64 res = 0;
+	Point interpreted = interpret_s(lines, begin);
+	std::array<Point, 2> paths = {begin, interpreted};
+	std::vector<Point> corners{};
+	if (lines[begin.y][begin.x] != '-' && lines[begin.y][begin.x] != '|') {
+		corners.push_back(begin);
+	}
+	double sz = 1;
 	do {
 		// get pos in maze
 		Point next = get_next(lines, paths[1], paths[0]);
 		paths[0] = paths[1];
 		paths[1] = next;
-		cycle.insert(paths[0]);
-	} while(paths[1] != begin);
-
-	std::unordered_set<Point> inside;
-	for(size_t y = 0; y < lines.size(); y++){
-		for (size_t x = 0; x < lines[y].size(); x++) {
-			Point p = {x, y};
-			if (cycle.contains(p)) {
-				continue;
-			}
-			if(check_inside(p, cycle, lines)) {
-				inside.insert(p);
-				res++;
-			}
+		if (lines[paths[0].y][paths[0].x] != '-' && lines[paths[0].y][paths[0].x] != '|') {
+			corners.push_back(paths[0]);
 		}
+		sz++;
+	} while(paths[1] != begin);
+	corners.push_back(corners[0]);
+	double area = 0;
+	// apply shoelace
+	// https://en.wikipedia.org/wiki/Shoelace_formula
+	for(size_t i = 0; i < corners.size() - 1; i++) {
+		area += corners[i].x * corners[i + 1].y;
+		area -= corners[i].y * corners[i + 1].x;
 	}
-
-	return res;
+	area = std::abs(area * .5f);
+	// Pick's formula
+	// https://en.wikipedia.org/wiki/Pick's_theorem
+	return area - sz/2 + 1;
 }
 
 
