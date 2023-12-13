@@ -3,24 +3,9 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <lud_utils.hpp>
 
-struct Point {
-	size_t x;
-	size_t y;
-	friend bool operator==(const Point& lhs, const Point& rhs) {
-		return rhs.x == lhs.x && rhs.y == lhs.y;
-	}
-};
-
-template <> struct std::hash<Point> {
-	size_t operator()(const Point& s) const noexcept {
-		const size_t x = std::hash<size_t>{}(s.x);
-		const size_t y = std::hash<size_t>{}(s.y);
-
-		return x ^ (y << 1);
-	}
-};
-
+using Point = Lud::Vec2<size_t>;
 
 uint32_t find_parts(const std::vector<std::string>& lines) 
 {

@@ -1,6 +1,7 @@
 #ifndef LUD_SLURPER_HEADER
 #define LUD_SLURPER_HEADER
 
+#include <ostream>
 #include <string_view>
 #include <string>
 #include <optional>
@@ -18,9 +19,9 @@ class Slurper
 {
 public:
 	Slurper();
-	Slurper(const std::string_view& filename, std::ios_base::openmode mode);
-	Slurper(const std::string& filename, std::ios_base::openmode mode);
-	Slurper(const char* filename, std::ios_base::openmode mode);
+	Slurper(const std::string_view& filename, std::ios_base::openmode mode = std::ios_base::in);
+	Slurper(const std::string& filename, std::ios_base::openmode mode = std::ios_base::in);
+	Slurper(const char* filename, std::ios_base::openmode mode = std::ios_base::in);
 
 	Slurper(const Slurper& slurper) = delete;
 	Slurper(Slurper&& slurper) noexcept = default;
@@ -28,28 +29,43 @@ public:
 
 	~Slurper();
 
-
+	// return remaining file as vector
 	std::vector<std::string> ReadLines();
 
+	// reads a single line
 	std::string ReadLine();
+	// reads n chars, returns nullopt if not enough space
 	std::optional<std::string> Read(size_t chars);
 
+	// reads size of structure from file
 	template<class T> std::optional<T> ReadStructure();
+	// reads size of structure from fiel to provided structure
 	template<class T> void ReadToStructure(T& t);
 
+	// returns current pos in file
 	size_t Where();
-	size_t Move(size_t pos);
-	size_t Move(size_t offset, std::ios_base::seekdir dir);
+	// moves current file pos to provided pos
+	Slurper& Move(size_t pos);
+	// moves current file pos by an offset in a direction
+	Slurper& Move(size_t offset, std::ios_base::seekdir dir);
 
-	void Reset();
+	// returns file pointer to pos 0
+	Slurper& Reset();
 
+	// returns true if file was opened
 	bool IsOpen() const;
 
+	// opens file 
+	Slurper& Open(const std::string_view& filename, std::ios_base::openmode mode = std::ios_base::in);
+	Slurper& Open(const std::string& filename, std::ios_base::openmode mode = std::ios_base::in);
+	Slurper& Open(const char* filename, std::ios_base::openmode mode = std::ios_base::in);
 
-	bool Open(const std::string_view& filename, std::ios_base::openmode mode);
-	bool Open(const std::string& filename, std::ios_base::openmode mode);
-	bool Open(const char* filename, std::ios_base::openmode mode);
+	// returns file as vector of lines without you needing to creating a slurper
+	static std::vector<std::string> Slurp(const std::string_view& filename, std::ios_base::openmode mode = std::ios_base::in);
+	static std::vector<std::string> Slurp(const std::string& filename, std::ios_base::openmode mode = std::ios_base::in);
+	static std::vector<std::string> Slurp(const char* filename, std::ios_base::openmode mode = std::ios_base::in);
 
+	// closes file
 	void Close();
 
 	bool HasSpace(size_t size);
@@ -57,8 +73,10 @@ public:
 private:
 	std::ifstream file;
 };
+}
 
 #ifdef LUD_SLURPER_IMPLEMENTATION
+namespace Lud {
 
 
 inline Slurper::Slurper()
@@ -66,17 +84,17 @@ inline Slurper::Slurper()
 
 }
 
-inline Slurper::Slurper(const std::string_view& filename, std::ios_base::openmode mode = std::ios_base::in) 
+inline Slurper::Slurper(const std::string_view& filename, const std::ios_base::openmode mode) 
 	: Slurper()
 { 
 	Open(filename, mode); 
 }
-inline Slurper::Slurper(const std::string& filename, std::ios_base::openmode mode = std::ios_base::in) 
+inline Slurper::Slurper(const std::string& filename, const std::ios_base::openmode mode) 
 	: Slurper()
 { 
 	Open(filename, mode); 
 }
-inline Slurper::Slurper(const char* filename, std::ios_base::openmode mode = std::ios_base::in) 
+inline Slurper::Slurper(const char* filename, const std::ios_base::openmode mode ) 
 	: Slurper()
 { 
 	Open(filename, mode); 
@@ -87,29 +105,47 @@ inline Slurper::~Slurper()
 	Close();
 }
 
-inline bool Lud::Slurper::Open(const std::string_view& filename, std::ios_base::openmode mode = std::ios_base::in) 
+inline std::vector<std::string> Slurper::Slurp(const std::string& filename, const std::ios_base::openmode mode)
+{
+	Slurper file(filename, mode);
+	return file.ReadLines();
+}
+
+inline std::vector<std::string> Slurper::Slurp(const char* filename, const std::ios_base::openmode mode)
+{
+	Slurper file(filename, mode);
+	return file.ReadLines();
+}
+
+inline std::vector<std::string> Slurper::Slurp(const std::string_view& filename, const std::ios_base::openmode mode)
+{
+	Slurper file(filename, mode);
+	return file.ReadLines();
+}
+
+inline Slurper& Lud::Slurper::Open(const std::string_view& filename, const std::ios_base::openmode mode) 
 {
 	if (IsOpen()) {
 		Close();
 	}
 	file.open(std::string(filename), mode);
-	return IsOpen();
+	return *this;
 }
-inline bool Lud::Slurper::Open(const std::string& filename, std::ios_base::openmode mode = std::ios_base::in) 
+inline Slurper& Lud::Slurper::Open(const std::string& filename, const std::ios_base::openmode mode) 
 { 
 	if (IsOpen()) {
 		Close();
 	}
 	file.open(filename, mode);
-	return IsOpen();
+	return *this;
 } 
-inline bool Lud::Slurper::Open(const char* filename, std::ios_base::openmode mode = std::ios_base::in) 
+inline Slurper& Lud::Slurper::Open(const char* filename, const std::ios_base::openmode mode) 
 { 
 	if (IsOpen()) {
 		Close();
 	}
 	file.open(filename, mode);
-	return IsOpen();
+	return *this;
 }
 
 inline bool Slurper::IsOpen() const
@@ -117,10 +153,12 @@ inline bool Slurper::IsOpen() const
 	return file.is_open();
 }
 
-inline void Slurper::Reset() 
+inline Slurper& Slurper::Reset() 
 {
 	file.clear();
 	file.seekg(0, std::ios::beg);
+
+	return *this;
 }
 
 
@@ -183,23 +221,22 @@ inline size_t Slurper::Where()
 	return file.tellg();
 }
 
-inline size_t Slurper::Move(size_t pos)
+inline Slurper& Slurper::Move(const size_t pos)
 {
-	const size_t current = Where();
 	file.seekg(pos);
-	return current;
+	return *this;
 }
 
-inline size_t Slurper::Move(size_t offset, std::ios_base::seekdir dir)
+inline Slurper& Slurper::Move(const size_t offset, const std::ios_base::seekdir dir)
+{
+	file.seekg(offset, dir);
+	return *this;
+}
+
+inline bool Slurper::HasSpace(const size_t size)
 {
 	const size_t current = Where();
-	file.seekg(offset, dir);
-	return current;
-}
-
-inline bool Slurper::HasSpace(size_t size)
-{
-	const size_t current = Move(0, std::ios::end);
+	Move(0, std::ios::end);
 	const size_t length = Where();
 
 	return size < length - current;

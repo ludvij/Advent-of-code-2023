@@ -1,23 +1,13 @@
 // Aoc 2023 Day 10 Part 1
 // author: Lud
 #include "lud_assert.hpp"
+#include "lud_vec2.hpp"
 #include <iostream>
 #include <ostream>
-#include <array>
-#include <lud_utils.hpp>
 #include <optional>
+#include <lud_utils.hpp>
 
-struct Point {
-	size_t x;
-	size_t y;
-	bool operator != (const Point& other) const {
-		return !(*this == other);
-	}
-	bool operator == (const Point& other) const {
-		return x == other.x && y == other.y;
-	}
-};
-
+using Point = Lud::Vec2<size_t>;
 
 Point get_begin(const std::vector<std::string>& lines)
 {
@@ -112,9 +102,10 @@ int main(int argc, char** argv)
 	}
 	const auto res = do_operation(argv[1]);
 
-	Lud::assert_eq(do_operation("test11.txt"), 4);
-	Lud::assert_eq(do_operation("test12.txt"), 8);
-
+	NO_PRINT (
+		Lud::assert_eq(do_operation("test11.txt"), 4);
+		Lud::assert_eq(do_operation("test12.txt"), 8);
+	)
 	std::cout << "Total " << res << '\n';
 	return 0;
 }

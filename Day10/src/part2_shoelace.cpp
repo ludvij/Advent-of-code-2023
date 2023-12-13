@@ -8,17 +8,7 @@
 #include <optional>
 #include <vector>
 
-struct Point {
-	size_t x;
-	size_t y;
-	bool operator != (const Point& other) const {
-		return !(*this == other);
-	}
-	bool operator == (const Point& other) const {
-		return x == other.x && y == other.y;
-	}
-
-};
+using Point = Lud::Vec2<size_t>;
 
 Point get_next(const std::vector<std::string>& lines, const Point& curr, const Point& prev)
 {

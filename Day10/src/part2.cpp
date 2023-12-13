@@ -1,4 +1,4 @@
-// Aoc 2023 Day 10 Part 2
+// Aoc 2023 Day 10 Part 2Point
 // author: Lud
 #include <iostream>
 #include <ostream>
@@ -8,27 +8,8 @@
 #include <vector>
 #include <unordered_set>
 
-struct Point {
-	size_t x;
-	size_t y;
-	bool operator != (const Point& other) const {
-		return !(*this == other);
-	}
-	bool operator == (const Point& other) const {
-		return x == other.x && y == other.y;
-	}
+using Point = Lud::Vec2<size_t>;
 
-};
-
-
-template <> struct std::hash<Point> {
-	size_t operator()(const Point& s) const noexcept {
-		const size_t x = std::hash<size_t>{}(s.x);
-		const size_t y = std::hash<size_t>{}(s.y);
-
-		return (x * 73856093) ^ y;
-	}
-};
 
 Point get_next(const std::vector<std::string>& lines, const Point& curr, const Point& prev)
 {
@@ -81,6 +62,7 @@ std::array<Point, 2> interpret_s(std::vector<std::string>& lines, const Point& b
 	return {*p1, *p2};
 }
 
+// raycast
 bool check_inside(const Point& p, const std::unordered_set<Point>& cycle, const std::vector<std::string>& ref)
 {
 	int intersections = 0;

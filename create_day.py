@@ -69,7 +69,7 @@ cpp_src = """// Aoc 2023 Day {day} Part {part}
 
 s64 do_operation(const char* filename)
 {{
-	Lud::Slurper file(filename);
+	auto lines = Lud::Slurper::Slurp(filename);
 	s64 res = 0;
 	return res;
 }}
@@ -82,6 +82,9 @@ int main(int argc, char** argv)
 		return 0;
 	}}
 	const auto res = do_operation(argv[1]);
+	NO_PRINT(
+		Lud::assert_eq(do_operation("test.txt"), 0);
+	);
 	std::cout << "Total " << res << '\\n';
 	return 0;
 }}

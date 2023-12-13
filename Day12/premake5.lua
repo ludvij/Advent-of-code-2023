@@ -1,9 +1,9 @@
-workspace "AoC_2023_Day3"
+workspace "AoC_2023_Day12"
 	architecture "x86_64"
 	language "C++"
 	cppdialect "c++20"
-	targetdir ("%{prj.location}/bin")
-	objdir ("%{prj.location}/bin-int")
+	targetdir ("%%{prj.location}/bin")
+	objdir ("%%{prj.location}/bin-int")
 
 	flags {
 		"MultiProcessorCompile",
@@ -12,20 +12,24 @@ workspace "AoC_2023_Day3"
 	buildoptions {
 		"-Wall", 
 		"-Wextra", 
-		"-pedantic", 
 		"-Wshadow",
+		"-pedantic", 
 		"-Wnon-virtual-dtor"
 	}
 
 	configurations {
-		"debug", 
-		"release"
+		"release",
+		"debug"
 	}
 
 	includedirs {
 		"src",
 		"../vendor/include",
 		"../utils"
+	}
+
+	defines {
+		"LUD_SLURPER_IMPLEMENTATION"
 	}
 
 	filter "configurations:debug"
@@ -51,4 +55,3 @@ project "Part2"
 	files { 
 		"src/part2.cpp"
 	}
-	
